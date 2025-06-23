@@ -1,22 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Mini App</title>
+  <title>Таймер</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script> 
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    #timer {
+      font-size: 2em;
+      margin: 20px 0;
+    }
+  </style>
 </head>
 <body>
-  <h1>Привет из Mini App!</h1>
-  <button onclick="sendData()">Отправить данные боту</button>
+  <h1>Таймер на 1 минуту</h1>
+  <div id="timer">60</div>
+  <button id="startBtn">Запустить таймер</button>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script> 
   <script>
     Telegram.WebApp.ready();
 
-    function sendData() {
-      Telegram.WebApp.sendData("Hello from Mini App!");
-      Telegram.WebApp.close();
-    }
+    const button = document.getElementById('startBtn');
+    const timerDisplay = document.getElementById('timer');
+
+    button.addEventListener('click', () => {
+      let timeLeft = 60;
+      button.disabled = true;
+      timerDisplay.textContent = timeLeft;
+
+      const interval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          timerDisplay.textContent = 'Время вышло!';
+          button.disabled = false;
+
+          // Отправляем данные обратно в бота
+          if (Telegram.WebApp && Telegram.WebApp.sendData) {
+            Telegram.WebApp.sendData("TIMER_FINISHED");
+            setTimeout(() => {
+              Telegram.WebApp.close(); // закрываем окно после отправки
+            }, 1000);
+          }
+        }
+      }, 1000);
+    });
   </script>
 </body>
 </html>
